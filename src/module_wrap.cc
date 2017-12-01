@@ -214,6 +214,11 @@ void ModuleWrap::Evaluate(const FunctionCallbackInfo<Value>& args) {
   args.GetReturnValue().Set(result.ToLocalChecked());
 }
 
+void ModuleWrap::EvaluateAndBreak(const FunctionCallbackInfo<Value>& args) {
+  Environment* env = Environment::GetCurrent(args);
+  env->inspector_agent()->PauseOnNextJavascriptStatement("Break on start");
+  Evaluate(args);
+}
 void ModuleWrap::Namespace(const FunctionCallbackInfo<Value>& args) {
   Environment* env = Environment::GetCurrent(args);
   Isolate* isolate = args.GetIsolate();
@@ -365,6 +370,7 @@ Maybe<uv_file> CheckFile(const URL& search,
     uv_fs_close(nullptr, &fs_req, fd, nullptr);
     uv_fs_req_cleanup(&fs_req);
     return Nothing<uv_file>();
+<<<<<<< HEAD
   }
 
   if (opt == CLOSE_AFTER_CHECK) {
@@ -372,6 +378,15 @@ Maybe<uv_file> CheckFile(const URL& search,
     uv_fs_req_cleanup(&fs_req);
   }
 
+=======
+  }
+
+  if (opt == CLOSE_AFTER_CHECK) {
+    uv_fs_close(nullptr, &fs_req, fd, nullptr);
+    uv_fs_req_cleanup(&fs_req);
+  }
+
+>>>>>>> add evaluateAndBreak to module_wrap to enable --inspect-brk
   return Just(fd);
 }
 
@@ -627,6 +642,10 @@ void ModuleWrap::Initialize(Local<Object> target,
   env->SetProtoMethod(tpl, "link", Link);
   env->SetProtoMethod(tpl, "instantiate", Instantiate);
   env->SetProtoMethod(tpl, "evaluate", Evaluate);
+<<<<<<< HEAD
+=======
+  env->SetProtoMethod(tpl, "evaluateAndBreak", EvaluateAndBreak);
+>>>>>>> add evaluateAndBreak to module_wrap to enable --inspect-brk
   env->SetProtoMethod(tpl, "namespace", Namespace);
 
   target->Set(FIXED_ONE_BYTE_STRING(isolate, "ModuleWrap"), tpl->GetFunction());
@@ -640,4 +659,8 @@ void ModuleWrap::Initialize(Local<Object> target,
 }  // namespace node
 
 NODE_MODULE_CONTEXT_AWARE_INTERNAL(module_wrap,
+<<<<<<< HEAD
                                    node::loader::ModuleWrap::Initialize)
+=======
+                                   node::loader::ModuleWrap::Initialize)
+>>>>>>> add evaluateAndBreak to module_wrap to enable --inspect-brk
