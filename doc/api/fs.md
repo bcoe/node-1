@@ -2041,7 +2041,7 @@ changes:
 
 Synchronous lstat(2).
 
-## fs.mkdir(path[, mode], callback)
+## fs.mkdir(path[, options], callback)
 <!-- YAML
 added: v0.1.8
 changes:
@@ -2060,12 +2060,18 @@ changes:
 -->
 
 * `path` {string|Buffer|URL}
-* `mode` {integer} Not supported on Windows. **Default:** `0o777`.
+* `options` {Object|string}
+  * `parent` {boolean} **Default:** `false`.
+  * `mode` {integer} Not supported on Windows. **Default:** `0o777`.
 * `callback` {Function}
   * `err` {Error}
 
 Asynchronously creates a directory. No arguments other than a possible exception
 are given to the completion callback.
+
+The optional options argument can be an integer specifying mode (permission and
+  sticky bits), or an object with a mode property and a parent property
+ indicating whether parent folders should be created.
 
 See also: mkdir(2).
 

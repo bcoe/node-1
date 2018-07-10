@@ -71,6 +71,51 @@ tmpdir.refresh();
   );
 });
 
+// mkdirp tests
+
+// path does not exist.
+{
+  const pathname = `${tmpdir.path}/test4/test5`;
+
+  fs.mkdir(pathname, {
+    parent: true
+  }, common.mustCall(function(err) {
+    assert.strictEqual(err, null);
+    assert.strictEqual(common.fileExists(pathname), true);
+  }));
+}
+
+// path already exists, and is a directory.
+{
+  const pathname = `${tmpdir.path}/test4/test5`;
+
+  fs.mkdir(pathname, {
+    parent: true
+  }, common.mustCall(function(err) {
+    assert.strictEqual(err, null);
+    assert.strictEqual(common.fileExists(pathname), true);
+    fs.mkdir(pathname, {
+      parent: true
+    }, common.mustCall(function(err) {
+      assert.strictEqual(err, null);
+      assert.strictEqual(common.fileExists(pathname), true);
+    }));
+  }));
+}
+
+// path already exists, and is a file.
+{
+  const pathname = `${tmpdir.path}/file.txt`;
+
+  fs.writeFileSync(pathname, '', 'utf8');
+
+  fs.mkdir(pathname, {
+    parent: true
+  }, common.mustCall(function(err) {
+    assert.strictEqual(err.code, 'EEXIST');
+  }));
+}
+
 // Keep the event loop alive so the async mkdir() requests
 // have a chance to run (since they don't ref the event loop).
 process.nextTick(() => {});
