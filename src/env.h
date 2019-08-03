@@ -229,6 +229,7 @@ constexpr size_t kFsStatsBufferLength =
   V(external_stream_string, "_externalStream")                                 \
   V(family_string, "family")                                                   \
   V(fatal_exception_string, "_fatalException")                                 \
+  V(apply_source_map_string, "_applySourceMap")                                \
   V(fd_string, "fd")                                                           \
   V(file_string, "file")                                                       \
   V(fingerprint256_string, "fingerprint256")                                   \

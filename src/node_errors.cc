@@ -52,6 +52,37 @@ static Mutex tty_mutex;
 
 static const int kMaxErrorSourceLength = 1024;
 
+static std::string ApplySourceMap(Isolate* isolate, std::string source) {
+  HandleScope scope(isolate);
+
+  Local<Context> context = isolate->GetCurrentContext();
+  Environment* env = Environment::GetCurrent(context);
+  if (env == nullptr) {
+    return source;
+  }
+
+  // use source map information to decorate a better exception.
+  Local<Object> process_object = env->process_object();
+  Local<String> apply_source_map_string = env->apply_source_map_string();
+  Local<Value> apply_source_map_function =
+      process_object->Get(env->context(),
+                          apply_source_map_string).ToLocalChecked();
+
+  MaybeLocal<Value> handled;
+  {
+    Local<Value> argv[1] = { String::NewFromUtf8(isolate, source.c_str(), v8::NewStringType::kNormal).ToLocalChecked() };
+    handled = apply_source_map_function.As<Function>()->Call(
+        env->context(), process_object, arraysize(argv), argv);
+  }
+
+  if (handled.IsEmpty() || !handled.ToLocalChecked()->IsString()) {
+    return source;
+  } else {
+    String::Utf8Value v8str(isolate, handled.ToLocalChecked());
+    return std::string(*v8str);
+  }
+}
+
 static std::string GetErrorSource(Isolate* isolate,
                                   Local<Context> context,
                                   Local<Message> message,
@@ -137,7 +168,7 @@ static std::string GetErrorSource(Isolate* isolate,
   buf[off + 1] = '\0';
 
   *added_exception_line = true;
-  return std::string(buf);
+  return ApplySourceMap(isolate, std::string(buf));
 }
 
 void PrintStackTrace(Isolate* isolate, Local<StackTrace> stack) {
