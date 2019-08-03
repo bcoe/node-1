@@ -168,6 +168,10 @@ static std::string GetErrorSource(Isolate* isolate,
   buf[off + 1] = '\0';
 
   *added_exception_line = true;
+
+  // TODO: it would be nice to apply this to the entire stack
+  // trace rather than applying it to just the bit that Node.js
+  // injects; perhaps we can apply this logic later?
   return ApplySourceMap(isolate, std::string(buf));
 }
 
