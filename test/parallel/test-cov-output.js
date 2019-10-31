@@ -29,6 +29,7 @@ const { resolve } = require('path');
 
 let files = readdirSync(resolve(__dirname, '../../'));
 console.info(files);
+console.info(process.env.BATMAN, process.env.NODE_V8_COVERAGE);
 files = readdirSync(resolve(__dirname, '../../cov'));
 console.info(files);
 // Force a throw so that we can see the above output.
