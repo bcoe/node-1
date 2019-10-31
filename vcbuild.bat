@@ -63,6 +63,7 @@ set cctest=
 set openssl_no_asm=
 set doc=
 set extra_msbuild_args=
+set collect_coverage=1
 
 :next-arg
 if "%1"=="" goto args-done
@@ -151,6 +152,9 @@ shift
 goto next-arg
 
 :args-done
+
+@rem NODE_V8_COVERAGE ensures that Node.js process outputs coverage data.
+if defined collect_coverage set NODE_V8_COVERAGE=cov
 
 if defined build_release (
   set config=Release
@@ -675,6 +679,11 @@ goto lint-md-build
 if not defined lint_md_build goto lint-md
 echo "Deprecated no-op target 'lint_md_build'"
 goto lint-md
+
+if not defined collect_coverage goto no-coverage
+%npm_exe% install c8 -g
+c8 --reporter=text --omit-relative=false --temp-directory=cov --resolve=lib --exclude="benchmark/" --exclude="deps/" --exclude="test/" --exclude="tools/" --wrapper-length=0
+:no-coverage
 
 :lint-md
 if not defined lint_md goto exit
