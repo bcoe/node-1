@@ -153,10 +153,6 @@ goto next-arg
 
 :args-done
 
-@rem NODE_V8_COVERAGE ensures that Node.js process outputs coverage data.
-if defined collect_coverage setx BATMAN "robin"
-setx NODE_V8_COVERAGE "cov"
-
 if defined build_release (
   set config=Release
   set package=1
