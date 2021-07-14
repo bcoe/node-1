@@ -13,6 +13,7 @@ const {
   mkdirSync,
   readdirSync,
   symlinkSync,
+  statSync,
 } = fs;
 const net = require('net');
 const { dirname, join } = require('path');
@@ -56,6 +57,7 @@ function nextdir() {
   const src = dirname(require.resolve('../fixtures/copy/kitchen-sink'));
   const dest = nextdir();
   const destFile = join(dest, 'a/b/README2.md');
+  copySync(src, dest, {dereference: true});
   copy(src, dest, { dereference: true }, common.mustCall((err) => {
     assert.strictEqual(err, null);
     const stat = lstatSync(destFile);
@@ -140,10 +142,9 @@ function nextdir() {
 }
 
 // It returns an error if attempt is made to copy socket.
-{
+if (!isWindows) {
   const dest = nextdir();
-  const sid = randomUUID();
-  const sock = isWindows ? `\\\\.\\pipe\\${sid}` : `${sid}.sock`;
+  const sock = `${randomUUID()}.sock`;
   const server = net.createServer();
   server.listen(sock);
   copy(sock, dest, common.mustCall((err) => {
@@ -162,6 +163,43 @@ function nextdir() {
     const srcStat = lstatSync(join(src, 'index.js'));
     const destStat = lstatSync(join(dest, 'index.js'));
     assert.strictEqual(srcStat.mtime.getTime(), destStat.mtime.getTime());
+  }));
+}
+
+// It applies filter function.
+{
+  const src = dirname(require.resolve('../fixtures/copy/kitchen-sink'));
+  const dest = nextdir();
+  copy(src, dest, {
+    filter: (path) => {
+      const pathStat = statSync(path);
+      return pathStat.isDirectory() || path.endsWith('.js');
+    },
+    dereference: true
+  }, common.mustCall((err) => {
+    assert.strictEqual(err, null);
+    const destEntries = [];
+    collectEntries(dest, destEntries);
+    for (const entry of destEntries) {
+      assert.strictEqual(
+        entry.isDirectory() || entry.name.endsWith('.js'),
+        true
+      );
+    }
+  }));
+}
+
+// It returns error if errorOnExist is true, and file or folder copied over.
+{
+  const src = dirname(require.resolve('../fixtures/copy/kitchen-sink'));
+  const dest = nextdir();
+  copySync(src, dest);
+  copy(src, dest, {
+    dereference: true,
+    overwrite: false,
+    errorOnExist: true,
+  }, common.mustCall((err) => {
+    assert.strictEqual(err.code, 'ERR_FS_COPY_EEXIST');
   }));
 }
 
