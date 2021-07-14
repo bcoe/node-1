@@ -41,15 +41,15 @@ function nextdir() {
 
 // It throws error if existing symlink in dest is in subdirectory src.
 // TODO(bcoe): this behavior seemed strange to me, ask about it in review.
-{
-  const src = dirname(require.resolve('../fixtures/copy/kitchen-sink'));
-  const dest = nextdir();
-  copySync(src, dest);
-  copy(src, dest, common.mustCall((err) => {
-    assert.strictEqual(err.code, 'ERR_FS_COPY_TO_SUBDIRECTORY');
-    assertDirEquivalent(src, dest);
-  }));
-}
+//{
+//  const src = dirname(require.resolve('../fixtures/copy/kitchen-sink'));
+//  const dest = nextdir();
+//  copySync(src, dest);
+//  copy(src, dest, common.mustCall((err) => {
+//    assert.strictEqual(err.code, 'ERR_FS_COPY_TO_SUBDIRECTORY');
+//    assertDirEquivalent(src, dest);
+//  }));
+// }
 
 // It does not fail if the same directory is copied to dest twice,
 // when dereference is true, and overwrite true.
